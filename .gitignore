@@ -1,0 +1,10 @@
+build/
+venv/
+GomuPlanner.iconset/
+GomuPlanner.*
+prompt
+
+*.pyc
+*.pyo
+__pycache__/
+*.py[cod]

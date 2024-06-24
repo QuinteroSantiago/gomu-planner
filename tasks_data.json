@@ -1,0 +1,26 @@
+{
+    "daily_tasks": [
+        ["0630", 15, "Wake up"],
+        ["0800", 10, "NOSE MEDICATIONS"],
+        ["0700", 60, "Exercise"],
+        ["0830", 30, "FOOD - Breakfast"],
+        ["1215", 45, "FOOD - Lunch"],
+        ["2000", 10, "NOSE MEDICATIONS"],
+        ["2100", 120, "Prepare for Bed"]
+    ],
+    "variable_tasks": [
+        [60, "CORE - Linux Training"],
+        [120, "CORE - FOCUS #1"],
+        [120, "CORE - FOCUS #2"]
+    ],
+    "conditional_tasks": {
+        "0": [
+            ["1130", 30, "CORE - IoT Standup"],
+            ["1630", 30, "CORE - All Hands Meeting"],
+            ["1700", 30, "CORE - Platform Meeting"]
+        ],
+        "1": [["1130", 30, "CORE - IoT Standup"]],
+        "2": [["1130", 30, "CORE - IoT Standup"]],
+        "3": [["1130", 30, "CORE - IoT Standup"]]
+    }
+}
