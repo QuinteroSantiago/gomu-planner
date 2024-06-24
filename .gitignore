@@ -8,3 +8,7 @@ prompt
 *.pyo
 __pycache__/
 *.py[cod]
+
+# DATA
+activity_log.txt
+tasks_data.json

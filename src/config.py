@@ -4,4 +4,4 @@ preferences = None
 daily_tasks = []
 variable_tasks = []
 conditional_tasks = {}
-preferences_file = "user_preferences.json"
+tasks_file = "tasks_data.json"
