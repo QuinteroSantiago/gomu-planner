@@ -12,3 +12,7 @@ __pycache__/
 # DATA
 activity_log.txt
 tasks_data.json
+
+# Prompting:
+consolidated_contents.txt
+prompt_maker.sh

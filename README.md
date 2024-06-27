@@ -1,14 +1,29 @@
 # Gomu Planner
-This is a planner to help me organize my day better. It is as minimalistic as possible with purpose, to minimize distractions
 
+Gomu Planner is a personal activity scheduling and logging application. It allows users to maintain a schedule, log activities, and modify schedule preferences through a graphical user interface (GUI).
 
+## Installation
+### Prerequisites
+- Python 3.x
+- Required Python packages:
+    - tkinter
+    - Pillow
+    - chime
 
-# TODO:
-
-Need to make it dynamic, meaning once a certain time is reached, there is a change in color
-
+## Setup
+### Clone the repository:
+1. Clone repository
+```bash
+git clone https://github.com/QuinteroSantiago/gomu-planner.git
+cd gomu-planner
+```
+2. Install required packages
+```bash
+pip install tkinter Pillow chime
+```
+3. Customize your schedule. Delete the `.example` extension from the `tasks_data.json.example` file and load them with your preferences.
 # Running app
-
-source venv/bin/activate
-
-python3 main.py
+Open a terminal or command prompt, navigate to gomu-planner directory and run:
+```bash
+python main.py
+```
