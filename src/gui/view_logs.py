@@ -9,7 +9,7 @@ class ViewLogsWindow(QDialog):
 
     def init_ui(self):
         self.setWindowTitle("View Activity Logs")
-        self.setGeometry(100, 100, 800, 1600)
+        self.setGeometry(800, 100, 1600, 1600)
 
         # Create a QTextEdit for displaying logs
         self.log_text = QTextEdit(self)

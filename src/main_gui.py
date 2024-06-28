@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton,
-    QTextEdit, QVBoxLayout, QWidget, QLabel)
+        QTextEdit, QVBoxLayout, QWidget, QLabel)
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QTextEdit
@@ -8,9 +8,10 @@ from .schedule import create_schedule
 import chime
 import os
 from .gui.adjust_time import AdjustTimeWindow
-from .gui.logging import LoggingWindow
+from .gui.add_log import LoggingWindow
 from .gui.view_logs import ViewLogsWindow
 from .gui.add_new_task import AddTaskWindow
+from .gui.delete_task import DeleteTaskWindow
 
 class MainApp(QMainWindow):
     def __init__(self, config):
@@ -18,7 +19,7 @@ class MainApp(QMainWindow):
         chime.theme('pokemon')
         self.config = config
         self.setWindowTitle("Gomu Planner")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(0, 0, 800, 1600)
         self.load_styles()
         QApplication.setFont(QFont("Courier New", 12))
         self.current_active_task = None
@@ -61,6 +62,10 @@ class MainApp(QMainWindow):
         self.add_task_button = QPushButton("Add a New Task", self)
         self.add_task_button.clicked.connect(self.add_task_window)
         left_layout.addWidget(self.add_task_button)
+
+        self.delete_task_button = QPushButton("Delete Task", self)
+        self.delete_task_button.clicked.connect(self.delete_task_window)
+        left_layout.addWidget(self.delete_task_button)
 
         self.adjust_button = QPushButton("Adjust Task Time", self)
         self.adjust_button.clicked.connect(self.adjust_time_window)
@@ -126,7 +131,7 @@ class MainApp(QMainWindow):
                 day_of_week, self.config.preferences)
 
         new_current_task = None
-        for start_dt, end_dt, task_name in schedule:
+        for start_dt, end_dt, task_name, category_name in schedule:
             start_time_str = start_dt.strftime('%H:%M')
             if start_dt <= now < end_dt:
                 color = "green"  # Current task
@@ -135,7 +140,7 @@ class MainApp(QMainWindow):
                 color = "red"    # Past task
             else:
                 color = "white"   # Future task
-            self.schedule_display.append(f"<div style='color:{color};'>{start_time_str} - {task_name}</div>")
+            self.schedule_display.append(f"<div style='color:{color};'>{start_time_str} [{category_name}] - {task_name}</div>")
 
         # Check if the active task has changed and play a chime if it has
         if new_current_task != self.current_active_task and new_current_task is not None:
@@ -157,9 +162,14 @@ class MainApp(QMainWindow):
         log_window.exec_()
 
     def add_task_window(self):
-        # task_window = AddTaskWindow(self.styleSheet())
-        task_window = AddTaskWindow(self.config)
-        task_window.exec_()
+        add_task_window = AddTaskWindow(self.config, self.styleSheet())
+        add_task_window.task_added.connect(self.update_schedule)
+        add_task_window.exec_()
+
+    def delete_task_window(self):
+        delete_task_window = DeleteTaskWindow(self.config, self.styleSheet())
+        delete_task_window.task_deleted.connect(self.update_schedule)  # Connect the signal to update_schedule
+        delete_task_window.exec_()
 
 def run_gui(config):
     app = QApplication([])
