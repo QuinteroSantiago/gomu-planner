@@ -30,7 +30,7 @@ categories = {
     'MEAL': '#00FF00',  # green
     'CORE': '#0000FF',  # blue
     'GOMU': '#FFA500',  # orange
-    'PRCR': '#FF0000',  # red
+    'LAZY': '#FF0000',  # red
     'MEDS': '#FFFF00',   # yellow
     'FOOD': '#00FF00'  # green
 }

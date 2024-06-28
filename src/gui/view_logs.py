@@ -41,10 +41,10 @@ class ViewLogsWindow(QDialog):
 
                     # Determine the color based on the category
                     category_color = {
-                        'MEAL': 'green',
+                        'FOOD': 'green',
                         'CORE': 'blue',
                         'GOMU': 'orange',
-                        'PRCR': 'red'
+                        'LAZY': 'red'
                     }.get(category, 'magenta')  # Default color if category doesn't match
 
                     # Format the text with appropriate HTML for colors
