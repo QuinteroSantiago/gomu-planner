@@ -1,0 +1,5 @@
+chime==0.7.0
+mariadb==1.1.10
+PyQt5==5.15.10
+python-dotenv==1.0.1
+SQLAlchemy==2.0.31
