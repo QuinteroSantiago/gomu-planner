@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, date
 
-def create_schedule(daily_tasks, variable_tasks, conditional_tasks, day_of_week, preferences):
+def create_schedule(daily_tasks, variable_tasks, day_of_week, preferences):
     today_date = date.today()
     schedule = []
 
@@ -13,12 +13,6 @@ def create_schedule(daily_tasks, variable_tasks, conditional_tasks, day_of_week,
         start_time = preferences.get(task.task_name)
         if start_time:
             start_dt = datetime.combine(today_date, start_time)
-            end_dt = start_dt + timedelta(minutes=task.duration)
-            schedule.append((start_dt, end_dt, task.task_name))
-
-    for task in conditional_tasks:
-        if task.day_of_week == day_of_week:
-            start_dt = datetime.combine(today_date, task.start_time)
             end_dt = start_dt + timedelta(minutes=task.duration)
             schedule.append((start_dt, end_dt, task.task_name))
 

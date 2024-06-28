@@ -3,7 +3,7 @@ import os
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from datetime import datetime
-from src.db.models import Base, DailyTask, VariableTask, ConditionalTask, Preference
+from src.db.models import Base, DailyTask, VariableTask, Preference, TaskCategory
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -25,27 +25,38 @@ session = Session()
 repo_dir = os.path.dirname(os.path.abspath(__file__))
 tasks_file_path = os.path.join(repo_dir, 'tasks_data.json')
 
+# Insert task categories
+categories = {
+    'MEAL': '#00FF00',  # green
+    'CORE': '#0000FF',  # blue
+    'GOMU': '#FFA500',  # orange
+    'PRCR': '#FF0000',  # red
+    'MEDS': '#FFFF00',   # yellow
+    'FOOD': '#00FF00'  # green
+}
+
+for category_name, color in categories.items():
+    category = TaskCategory(category_name=category_name, color=color)
+    session.add(category)
+
+session.commit()
+
 # Load JSON data
 with open(tasks_file_path, 'r') as file:
     data = json.load(file)
 
 # Insert daily tasks
-for start_time, duration, task_name in data['daily_tasks']:
+for start_time, duration, task_name, category_name in data['daily_tasks']:
     start_time_obj = datetime.strptime(start_time, '%H%M').time()
-    daily_task = DailyTask(start_time=start_time_obj, duration=duration, task_name=task_name)
+    category = session.query(TaskCategory).filter_by(category_name=category_name).first()
+    daily_task = DailyTask(start_time=start_time_obj, duration=duration, task_name=task_name, category=category)
     session.add(daily_task)
 
 # Insert variable tasks
-for duration, task_name in data['variable_tasks']:
-    variable_task = VariableTask(duration=duration, task_name=task_name)
+for duration, task_name, category_name in data['variable_tasks']:
+    category = session.query(TaskCategory).filter_by(category_name=category_name).first()
+    variable_task = VariableTask(duration=duration, task_name=task_name, category=category)
     session.add(variable_task)
-
-# Insert conditional tasks
-for day_of_week, tasks in data['conditional_tasks'].items():
-    for start_time, duration, task_name in tasks:
-        start_time_obj = datetime.strptime(start_time, '%H%M').time()
-        conditional_task = ConditionalTask(day_of_week=int(day_of_week), start_time=start_time_obj, duration=duration, task_name=task_name)
-        session.add(conditional_task)
 
 # Insert preferences
 for task_name, preferred_time in data['preferred_times'].items():

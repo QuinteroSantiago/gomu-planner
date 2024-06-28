@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from .db.models import DailyTask, VariableTask, ConditionalTask, Preference
+from .db.models import DailyTask, VariableTask, Preference
 from datetime import datetime
 
 class Config:
@@ -13,14 +13,12 @@ class Config:
     def load_data(self):
         self.daily_tasks = self.session.query(DailyTask).all()
         self.variable_tasks = self.session.query(VariableTask).all()
-        self.conditional_tasks = self.session.query(ConditionalTask).all()
         self.preferences = {pref.task_name: pref.preferred_time for pref in self.session.query(Preference).all()}
         # Ensure tasks_data has preferred_times initialized
         self.tasks_data = {
             'preferred_times': self.preferences,
             'daily_tasks': self.daily_tasks,
-            'variable_tasks': self.variable_tasks,
-            'conditional_tasks': self.conditional_tasks
+            'variable_tasks': self.variable_tasks
         }
 
     def save_data(self):

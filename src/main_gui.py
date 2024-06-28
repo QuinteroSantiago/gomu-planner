@@ -93,7 +93,7 @@ class MainApp(QMainWindow):
 
         day_of_week = datetime.today().weekday()
         schedule = create_schedule(self.config.daily_tasks, self.config.variable_tasks,
-                                self.config.conditional_tasks, day_of_week, self.config.preferences)
+                day_of_week, self.config.preferences)
 
         new_current_task = None
         for start_dt, end_dt, task_name in schedule:
