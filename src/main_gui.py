@@ -70,9 +70,16 @@ class MainApp(QMainWindow):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_schedule)
-        self.timer.start(1000)  # Update every second
+        self.timer.start(1000)
+
+        self.logging_timer = QTimer(self)
+        self.logging_timer.timeout.connect(self.logging_window)
+        self.reset_logging_timer()
 
         self.update_schedule()
+
+    def reset_logging_timer(self):
+        self.logging_timer.start(30 * 60 * 1000)
 
     def update_schedule(self):
         now = datetime.now()
@@ -106,13 +113,14 @@ class MainApp(QMainWindow):
             self.current_active_task = new_current_task
 
     def adjust_time_window(self):
-        dialog = AdjustTimeWindow(self.config)
+        dialog = AdjustTimeWindow(self.config, self.styleSheet())
         dialog.exec_()
         self.update_schedule()
 
     def logging_window(self):
-        log_win = LoggingWindow()
+        log_win = LoggingWindow(self.styleSheet())
         log_win.exec_()
+        self.reset_logging_timer()
 
     def view_logs(self):
         log_window = ViewLogsWindow(self.styleSheet())
@@ -123,89 +131,4 @@ def run_gui(config):
     window = MainApp(config)
     window.show()
     app.exec_()
-
-
-# from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton
-
-# class AdjustTimeWindow(QDialog):
-#     def __init__(self, config):
-#         super().__init__()
-#         self.config = config
-#         self.init_ui()
-
-#     def init_ui(self):
-#         layout = QVBoxLayout()
-#         self.setWindowTitle("Adjust Task Time")
-
-#         # Task selection dropdown
-#         self.task_combo = QComboBox()
-#         task_names = [task.task_name for task in self.config.variable_tasks]
-#         self.task_combo.addItems(task_names)
-#         layout.addWidget(QLabel("Select Task:"))
-#         layout.addWidget(self.task_combo)
-
-#         # Time input
-#         self.time_input = QLineEdit()
-#         self.time_input.setPlaceholderText("Enter new time (HHMM)")
-#         layout.addWidget(QLabel("New Time:"))
-#         layout.addWidget(self.time_input)
-
-#         # Save button
-#         save_button = QPushButton("Save")
-#         save_button.clicked.connect(self.save_new_time)
-#         layout.addWidget(save_button)
-
-#         self.setLayout(layout)
-
-#     def save_new_time(self):
-#         task_name = self.task_combo.currentText()
-#         new_time = self.time_input.text()
-#         try:
-#             # Ensure input is exactly 4 digits and digits only
-#             if len(new_time) != 4 or not new_time.isdigit():
-#                 raise ValueError("Please enter time in HHMM format, where HH is hour and MM is minute.")
-#             datetime.strptime(new_time, '%H%M')
-#             self.config.update_preferences(task_name, new_time)
-#             self.accept()
-#         except ValueError as e:
-#             QMessageBox.critical(self, "Invalid Time", f"Invalid time format: {str(e)}")
-
-# class LoggingWindow(QDialog):
-#     def __init__(self):
-#         super().__init__()
-#         self.init_ui()
-
-#     def init_ui(self):
-#         chime.info()
-#         layout = QVBoxLayout()
-#         self.setWindowTitle("Log Activity")
-
-#         # Activity dropdown
-#         self.activity_combo = QComboBox()
-#         activities = ['READ', 'WRKT', 'CORE', 'GOMU', 'PRCR', 'MEAL']
-#         self.activity_combo.addItems(activities)
-#         layout.addWidget(QLabel("Select Activity:"))
-#         layout.addWidget(self.activity_combo)
-
-#         # Description input
-#         self.desc_input = QLineEdit()
-#         self.desc_input.setPlaceholderText("Describe what you did")
-#         layout.addWidget(QLabel("Description:"))
-#         layout.addWidget(self.desc_input)
-
-#         # Save button
-#         save_button = QPushButton("Save")
-#         save_button.clicked.connect(self.save_log)
-#         layout.addWidget(save_button)
-
-#         self.setLayout(layout)
-
-#     def save_log(self):
-#         activity = self.activity_combo.currentText()
-#         description = self.desc_input.text()
-#         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-#         log_message = f"{timestamp} {activity} - {description}\n"
-#         with open("activity_log.txt", "a") as file:
-#             file.write(log_message)
-#         self.accept()
 

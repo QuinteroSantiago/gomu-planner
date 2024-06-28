@@ -3,8 +3,10 @@ from datetime import datetime
 import chime
 
 class LoggingWindow(QDialog):
-    def __init__(self):
+    def __init__(self, style_sheet=None):
         super().__init__()
+        if style_sheet:
+            self.setStyleSheet(style_sheet)
         self.init_ui()
 
     def init_ui(self):
@@ -16,13 +18,17 @@ class LoggingWindow(QDialog):
         self.activity_combo = QComboBox()
         activities = ['READ', 'WRKT', 'CORE', 'GOMU', 'PRCR', 'MEAL']
         self.activity_combo.addItems(activities)
-        layout.addWidget(QLabel("Select Activity:"))
+        activity_label = QLabel("Select Activity:")
+        activity_label.setStyleSheet("color: black;")
+        layout.addWidget(activity_label)
         layout.addWidget(self.activity_combo)
 
         # Description input
         self.desc_input = QLineEdit()
         self.desc_input.setPlaceholderText("Describe what you did")
-        layout.addWidget(QLabel("Description:"))
+        description_label = QLabel("Description:")
+        description_label.setStyleSheet("color: black;")
+        layout.addWidget(description_label)
         layout.addWidget(self.desc_input)
 
         # Save button

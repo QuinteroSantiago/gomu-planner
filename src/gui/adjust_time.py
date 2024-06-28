@@ -3,9 +3,11 @@ from PyQt5.QtWidgets import (QPushButton, QVBoxLayout, QComboBox,
 from datetime import datetime
 
 class AdjustTimeWindow(QDialog):
-    def __init__(self, config):
+    def __init__(self, config, style_sheet=None):
         super().__init__()
         self.config = config
+        if style_sheet:
+            self.setStyleSheet(style_sheet)
         self.init_ui()
 
     def init_ui(self):
@@ -16,13 +18,17 @@ class AdjustTimeWindow(QDialog):
         self.task_combo = QComboBox()
         task_names = [task.task_name for task in self.config.variable_tasks]
         self.task_combo.addItems(task_names)
-        layout.addWidget(QLabel("Select Task:"))
+        task_label = QLabel("Select Task:")
+        task_label.setStyleSheet("color: black;")
+        layout.addWidget(task_label)
         layout.addWidget(self.task_combo)
 
         # Time input
         self.time_input = QLineEdit()
         self.time_input.setPlaceholderText("Enter new time (HHMM)")
-        layout.addWidget(QLabel("New Time:"))
+        time_label = QLabel("New Time:")
+        time_label.setStyleSheet("color: black;")
+        layout.addWidget(time_label)
         layout.addWidget(self.time_input)
 
         # Save button
