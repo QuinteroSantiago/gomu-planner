@@ -1,9 +1,8 @@
 import tkinter as tk
-from tkinter import font, ttk
+from tkinter import font, ttk, messagebox
 import os
 from datetime import datetime, date
 from .schedule import create_schedule
-import src.config as config
 import chime
 from PIL import Image, ImageTk
 
@@ -44,10 +43,10 @@ def run_gui(config):
     schedule_display.tag_config("past", foreground="red")
     schedule_display.tag_config("future", foreground="grey")
 
-    modify_button = tk.Button(root, text="Modify Plan", command=lambda: modify_preferences_gui(config))
-    modify_button.pack()
+    adjust_button = tk.Button(root, text="Adjust Task Time", command=lambda: adjust_time_window(config))
+    adjust_button.pack()
 
-    log_button = tk.Button(root, text="Log Activity Now", command=manual_log_trigger)
+    log_button = tk.Button(root, text="Log Activity Now", command=logging_window)
     log_button.pack()
 
     exit_button = tk.Button(root, text="Exit", command=root.destroy)
@@ -83,23 +82,61 @@ def display_schedule_gui(schedule, config):
     # Refresh every second
     root.after(1000, lambda: update_schedule(config))
 
-def modify_preferences_gui(config):
+def adjust_time_window(config):
     new_window = tk.Toplevel(root)
     new_window.title("Modify Schedule Preferences")
 
     # Fetch variable tasks names for dropdown
-    options = [task[1] for task in config.variable_tasks]  # Assuming this structure for variable_tasks
+    options = [task.task_name for task in config.variable_tasks]  # Access task_name attribute
     variable = tk.StringVar(new_window)
     variable.set(options[0])  # default value
 
     opt = tk.OptionMenu(new_window, variable, *options)
     opt.pack()
 
-    entry = tk.Entry(new_window)
-    entry.pack()
+    entry_time = tk.Entry(new_window)
+    entry_time.pack()
+    # entry_time.insert(0, "HHMM")
+    placeholder = "HHMM"
 
-    button = tk.Button(new_window, text="Save", command=lambda: save_new_time(variable.get(), entry.get(), new_window, config))
+    def on_focus_in(event):
+        if entry_time.get() == placeholder:
+            entry_time.delete(0, tk.END)
+            entry_time.config(fg='black')
+
+    def on_focus_out(event):
+        if entry_time.get() == '':
+            entry_time.insert(0, placeholder)
+            entry_time.config(fg='grey')
+
+    entry_time.insert(0, placeholder)
+    entry_time.config(fg='grey')
+    entry_time.bind("<FocusIn>", on_focus_in)
+    entry_time.bind("<FocusOut>", on_focus_out)
+
+    def save_action():
+        time_text = entry_time.get()
+        if time_text == placeholder or not time_text:
+            messagebox.showerror("Invalid Time", "Please enter a time.")
+            return
+
+        try:
+            # Ensure input is exactly 4 digits and digits only
+            if len(time_text) != 4 or not time_text.isdigit():
+                raise ValueError("Please enter time in HHMM format, where HH is hour and MM is minute.")
+
+            # Validate and convert time to datetime.time object
+            datetime.strptime(time_text, '%H%M')  # This throws ValueError if invalid
+
+            # Proceed with saving or further processing
+            save_new_time(variable.get(), time_text, new_window, config)
+        except ValueError as e:
+            messagebox.showerror("Invalid Time", f"Invalid time format: {str(e)}")
+            return
+
+    button = tk.Button(new_window, text="Save", command=save_action)
     button.pack()
+
 
 def update_schedule(config):
     global current_active_task
@@ -123,23 +160,16 @@ def update_schedule(config):
 
 def save_new_time(task_name, new_time, window, config):
     if new_time:
-        config_data = config.load_data()
-        config_data['preferred_times'][task_name] = new_time
-        config.save_data(config_data)
-        config.preferences = config_data['preferred_times']
+        config.update_preferences(task_name, new_time)
         update_schedule(config)
     window.destroy()
-
-def manual_log_trigger():
-    trigger_logging_window()
-    reset_logging_timer()
 
 def start_logging_timer():
     global log_timer_id
     if log_timer_id:
         root.after_cancel(log_timer_id)
     log_timer_id = root.after(1800000, start_logging_timer)  # Schedule next trigger
-    trigger_logging_window()
+    logging_window()
 
 def reset_logging_timer():
     global log_timer_id
@@ -147,7 +177,7 @@ def reset_logging_timer():
         root.after_cancel(log_timer_id)
     log_timer_id = root.after(1800000, start_logging_timer)  # Reset the timer to trigger in 30 minutes
 
-def trigger_logging_window():
+def logging_window():
     chime.info()
     log_window = tk.Toplevel(root)
     log_window.title("Activity Logger")
@@ -172,6 +202,7 @@ def trigger_logging_window():
     # Save button
     save_button = tk.Button(log_window, text="Save", command=lambda: save_log_entry(activity_var.get(), desc_entry.get(), log_window))
     save_button.pack()
+    reset_logging_timer()
 
 def save_log_entry(activity, description, window):
     # Format and append the log entry with a timestamp
