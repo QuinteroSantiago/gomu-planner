@@ -1,10 +1,7 @@
 import os
-from src.gui import run_gui
 from src.config import Config
 from dotenv import load_dotenv
-
-repo_dir = os.path.dirname(os.path.abspath(__file__))
-tasks_file_path = os.path.join(repo_dir, 'tasks_data.json')
+from src.main_gui import run_gui
 
 load_dotenv()
 db_user = os.getenv('db_user')
