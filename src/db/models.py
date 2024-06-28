@@ -24,6 +24,13 @@ class DailyTask(Base):
     task_name = Column(String(255), nullable=False)
     category_id = Column(Integer, ForeignKey('task_categories.id'))
     category = relationship('TaskCategory')
+    @classmethod
+    def create(cls, session, start_time, duration, task_name, category_id):
+        new_task = cls(start_time=start_time, duration=duration, task_name=task_name, category_id=category_id)
+        session.add(new_task)
+        session.commit()
+        return new_task
+
 
 class VariableTask(Base):
     __tablename__ = 'variable_tasks'
@@ -33,6 +40,12 @@ class VariableTask(Base):
     category_id = Column(Integer, ForeignKey('task_categories.id'))
     category = relationship('TaskCategory')
     preferences = relationship('Preference', secondary=variable_task_preferences, back_populates='tasks')
+    @classmethod
+    def create(cls, session, duration, task_name, category_id):
+        new_task = cls(duration=duration, task_name=task_name, category_id=category_id)
+        session.add(new_task)
+        session.commit()
+        return new_task
 
 class Preference(Base):
     __tablename__ = 'preferences'

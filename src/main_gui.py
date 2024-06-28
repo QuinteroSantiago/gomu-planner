@@ -9,6 +9,7 @@ import os
 from .gui.adjust_time import AdjustTimeWindow
 from .gui.logging import LoggingWindow
 from .gui.view_logs import ViewLogsWindow
+from .gui.add_new_task import AddTaskWindow
 
 class MainApp(QMainWindow):
     def __init__(self, config):
@@ -59,8 +60,12 @@ class MainApp(QMainWindow):
         layout.addWidget(self.log_button)
 
         self.view_logs_button = QPushButton("View Logs", self)
-        self.view_logs_button.clicked.connect(self.view_logs)
+        self.view_logs_button.clicked.connect(self.view_logs_window)
         layout.addWidget(self.view_logs_button)
+
+        self.add_task_button = QPushButton("Add a New Task", self)
+        self.add_task_button.clicked.connect(self.add_task_window)
+        layout.addWidget(self.add_task_button)
 
         self.exit_button = QPushButton("Exit", self)
         self.exit_button.clicked.connect(self.close)
@@ -122,9 +127,14 @@ class MainApp(QMainWindow):
         log_win.exec_()
         self.reset_logging_timer()
 
-    def view_logs(self):
+    def view_logs_window(self):
         log_window = ViewLogsWindow(self.styleSheet())
         log_window.exec_()
+
+    def add_task_window(self):
+        # task_window = AddTaskWindow(self.styleSheet())
+        task_window = AddTaskWindow(self.config)
+        task_window.exec_()
 
 def run_gui(config):
     app = QApplication([])

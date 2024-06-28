@@ -1,8 +1,7 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from .db.models import DailyTask, VariableTask, Preference
+from .db.models import DailyTask, VariableTask, Preference, TaskCategory
 from datetime import datetime
-
 class Config:
     def __init__(self, db_url):
         self.engine = create_engine(db_url)
