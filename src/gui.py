@@ -15,7 +15,7 @@ chime.theme('pokemon')
 log_timer_id = None
 current_active_task = None
 
-def run_gui():
+def run_gui(config):
     global schedule_display
     global root
     # Main window setup
@@ -45,7 +45,7 @@ def run_gui():
     schedule_display.tag_config("past", foreground="red")
     schedule_display.tag_config("future", foreground="grey")
 
-    modify_button = tk.Button(root, text="Modify Plan", command=modify_preferences_gui)
+    modify_button = tk.Button(root, text="Modify Plan", command=lambda: modify_preferences_gui(config))
     modify_button.pack()
 
     log_button = tk.Button(root, text="Log Activity Now", command=manual_log_trigger)
@@ -54,7 +54,7 @@ def run_gui():
     exit_button = tk.Button(root, text="Exit", command=root.destroy)
     exit_button.pack()
 
-    update_schedule()
+    update_schedule(config)
 
     # Start logging timer
     start_logging_timer()
@@ -63,7 +63,7 @@ def run_gui():
     root.mainloop()
 
 
-def display_schedule_gui(schedule):
+def display_schedule_gui(schedule, config):
     global schedule_display
     schedule_display.delete('1.0', tk.END)
     now = datetime.now()
@@ -82,9 +82,9 @@ def display_schedule_gui(schedule):
         schedule_display.insert(tk.END, display_text, tag_name)
 
     # Refresh every second
-    root.after(1000, lambda: update_schedule())
+    root.after(1000, lambda: update_schedule(config))
 
-def modify_preferences_gui():
+def modify_preferences_gui(config):
     new_window = tk.Toplevel(root)
     new_window.title("Modify Schedule Preferences")
 
@@ -99,10 +99,10 @@ def modify_preferences_gui():
     entry = tk.Entry(new_window)
     entry.pack()
 
-    button = tk.Button(new_window, text="Save", command=lambda: save_new_time(variable.get(), entry.get(), new_window))
+    button = tk.Button(new_window, text="Save", command=lambda: save_new_time(variable.get(), entry.get(), new_window, config))
     button.pack()
 
-def update_schedule():
+def update_schedule(config):
     global current_active_task
     day_of_week = datetime.today().weekday()
     new_schedule = create_schedule(config.daily_tasks, config.variable_tasks, config.conditional_tasks, day_of_week, config.preferences)
@@ -120,15 +120,15 @@ def update_schedule():
         chime.theme('pokemon')
         current_active_task = new_current_task
 
-    display_schedule_gui(new_schedule)
+    display_schedule_gui(new_schedule, config)
 
-def save_new_time(task_name, new_time, window):
+def save_new_time(task_name, new_time, window, config):
     if new_time:
         config_data = load_data(config.tasks_file)
         config_data['preferred_times'][task_name] = new_time
         save_data(config.tasks_file, config_data)
         config.preferences = config_data['preferred_times']
-        update_schedule()
+        update_schedule(config)
     window.destroy()
 
 def manual_log_trigger():
