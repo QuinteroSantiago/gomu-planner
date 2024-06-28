@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import font, ttk
 import os
 from datetime import datetime, date
-from .data_management import load_data, save_data
 from .schedule import create_schedule
 import src.config as config
 import chime
@@ -124,9 +123,9 @@ def update_schedule(config):
 
 def save_new_time(task_name, new_time, window, config):
     if new_time:
-        config_data = load_data(config.tasks_file)
+        config_data = config.load_data()
         config_data['preferred_times'][task_name] = new_time
-        save_data(config.tasks_file, config_data)
+        config.save_data(config_data)
         config.preferences = config_data['preferred_times']
         update_schedule(config)
     window.destroy()
