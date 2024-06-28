@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton,
     QTextEdit, QVBoxLayout, QWidget, QLabel)
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QTextEdit
 from datetime import datetime, date
 from .schedule import create_schedule
 import chime
@@ -38,40 +39,64 @@ class MainApp(QMainWindow):
     def init_ui(self):
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
-        layout = QVBoxLayout()
 
-        # Date display
+        # Top layout for displaying date and schedule
+        top_layout = QVBoxLayout()
         today = date.today().strftime("%A, %B %d, %Y")
         self.header_label = QLabel(today)
-        layout.addWidget(self.header_label)
-
-        # Schedule display area
+        top_layout.addWidget(self.header_label)
         self.schedule_display = QTextEdit(self)
         self.schedule_display.setReadOnly(True)
-        layout.addWidget(self.schedule_display)
+        top_layout.addWidget(self.schedule_display)
 
-        # Buttons
+        # Main layout for two columns
+        main_layout = QHBoxLayout()
+
+        # Left column for tasks
+        left_layout = QVBoxLayout()
+        task_label = QLabel("Tasks")
+        left_layout.addWidget(task_label)
+
+        # Buttons for task management
+        self.add_task_button = QPushButton("Add a New Task", self)
+        self.add_task_button.clicked.connect(self.add_task_window)
+        left_layout.addWidget(self.add_task_button)
+
         self.adjust_button = QPushButton("Adjust Task Time", self)
         self.adjust_button.clicked.connect(self.adjust_time_window)
-        layout.addWidget(self.adjust_button)
+        left_layout.addWidget(self.adjust_button)
+
+        # Right column for logs
+        right_layout = QVBoxLayout()
+        log_label = QLabel("Logs")
+        right_layout.addWidget(log_label)
 
         self.log_button = QPushButton("Log Activity Now", self)
         self.log_button.clicked.connect(self.logging_window)
-        layout.addWidget(self.log_button)
+        right_layout.addWidget(self.log_button)
 
         self.view_logs_button = QPushButton("View Logs", self)
         self.view_logs_button.clicked.connect(self.view_logs_window)
-        layout.addWidget(self.view_logs_button)
+        right_layout.addWidget(self.view_logs_button)
 
-        self.add_task_button = QPushButton("Add a New Task", self)
-        self.add_task_button.clicked.connect(self.add_task_window)
-        layout.addWidget(self.add_task_button)
+        # Add columns to the main layout
+        main_layout.addLayout(left_layout)
+        main_layout.addLayout(right_layout)
 
+        # Bottom layout for exit button
+        bottom_layout = QHBoxLayout()
         self.exit_button = QPushButton("Exit", self)
         self.exit_button.clicked.connect(self.close)
-        layout.addWidget(self.exit_button)
+        bottom_layout.addWidget(self.exit_button, 0, Qt.AlignCenter)
 
-        central_widget.setLayout(layout)
+        # Final layout setup
+        final_layout = QVBoxLayout()
+        final_layout.addLayout(top_layout)
+        final_layout.addLayout(main_layout)
+        final_layout.addLayout(bottom_layout)
+
+        # Set the final layout to the central widget
+        central_widget.setLayout(final_layout)
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_schedule)
@@ -94,7 +119,7 @@ class MainApp(QMainWindow):
             current_time = now.strftime("%H %M")
 
         self.schedule_display.clear()
-        self.schedule_display.append(f"<div style='text-align:left;'>{current_time}\n\n</div>\n\n")
+        self.schedule_display.append(f"<div style='text-align:left;'>{current_time}</div>")
 
         day_of_week = datetime.today().weekday()
         schedule = create_schedule(self.config.daily_tasks, self.config.variable_tasks,
