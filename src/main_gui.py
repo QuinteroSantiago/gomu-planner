@@ -158,7 +158,7 @@ class MainApp(QMainWindow):
         self.reset_logging_timer()
 
     def view_logs_window(self):
-        log_window = ViewLogsWindow(self.styleSheet())
+        log_window = ViewLogsWindow(self.config, self.styleSheet())
         log_window.exec_()
 
     def add_task_window(self):
