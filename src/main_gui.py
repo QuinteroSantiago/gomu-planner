@@ -163,12 +163,12 @@ class MainApp(QMainWindow):
 
     def add_task_window(self):
         add_task_window = AddTaskWindow(self.config, self.styleSheet())
-        add_task_window.task_added.connect(self.update_schedule)
+        add_task_window.task_added.connect(self.config.load_data)
         add_task_window.exec_()
 
     def delete_task_window(self):
         delete_task_window = DeleteTaskWindow(self.config, self.styleSheet())
-        delete_task_window.task_deleted.connect(self.update_schedule)  # Connect the signal to update_schedule
+        delete_task_window.task_deleted.connect(self.config.load_data)  # Connect the signal to update_schedule
         delete_task_window.exec_()
 
 def run_gui(config):

@@ -94,6 +94,7 @@ class AddTaskWindow(QDialog):
                 DailyTask.create(self.config.session, start_time, duration, task_name, category_id)
                 msg_box = QMessageBox(QMessageBox.Information, "Success", "Daily task added successfully!")
                 msg_box.setStyleSheet("color: black;")
+                self.task_added.emit()
                 msg_box.exec_()
             except Exception as e:
                 msg_box = QMessageBox(QMessageBox.Critical, "Error", f"Failed to add daily task: {str(e)}")
@@ -104,6 +105,7 @@ class AddTaskWindow(QDialog):
                 VariableTask.create(self.config.session, duration, task_name, category_id)
                 msg_box = QMessageBox(QMessageBox.Information, "Success", "Variable task added successfully!")
                 msg_box.setStyleSheet("color: black;")
+                self.task_added.emit()
                 msg_box.exec_()
             except Exception as e:
                 msg_box = QMessageBox(QMessageBox.Critical, "Error", f"Failed to add variable task: {str(e)}")

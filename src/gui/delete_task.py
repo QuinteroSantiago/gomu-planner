@@ -68,8 +68,8 @@ class DeleteTaskWindow(QDialog):
             self.config.session.commit()
             msg_box = QMessageBox(QMessageBox.Information, "Success", "Task deleted successfully!")
             msg_box.setStyleSheet("color: black;")
+            self.task_deleted.emit()
             msg_box.exec_()
-            self.task_deleted.emit()  # Emit the task_deleted signal
         else:
             msg_box = QMessageBox(QMessageBox.Critical, "Error", "Task not found.")
             msg_box.setStyleSheet("color: black;")
