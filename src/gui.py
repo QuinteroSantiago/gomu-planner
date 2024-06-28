@@ -49,6 +49,9 @@ def run_gui(config):
     log_button = tk.Button(root, text="Log Activity Now", command=logging_window)
     log_button.pack()
 
+    view_logs_button = tk.Button(root, text="View Logs", command=view_logs)
+    view_logs_button.pack()
+
     exit_button = tk.Button(root, text="Exit", command=root.destroy)
     exit_button.pack()
 
@@ -211,3 +214,25 @@ def save_log_entry(activity, description, window):
     with open("activity_log.txt", "a") as file:
         file.write(log_message)
     window.destroy()
+
+def view_logs():
+    # Create a new top-level window
+    log_window = tk.Toplevel(root)
+    log_window.title("View Activity Logs")
+
+    # Create a text widget and a scrollbar
+    log_text = tk.Text(log_window, wrap="word", height=20, width=50)
+    scroll = tk.Scrollbar(log_window, command=log_text.yview)
+    log_text.configure(yscrollcommand=scroll.set)
+
+    # Pack widgets
+    scroll.pack(side="right", fill="y")
+    log_text.pack(side="left", fill="both", expand=True)
+
+    # Read the log file and insert contents into the text widget
+    try:
+        with open("activity_log.txt", "r") as file:
+            log_contents = file.read()
+            log_text.insert(tk.END, log_contents)
+    except FileNotFoundError:
+        log_text.insert(tk.END, "No logs found.")
