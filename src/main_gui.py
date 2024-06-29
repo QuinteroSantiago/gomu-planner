@@ -12,6 +12,9 @@ from .gui.add_log import LoggingWindow
 from .gui.view_logs import ViewLogsWindow
 from .gui.add_new_task import AddTaskWindow
 from .gui.delete_task import DeleteTaskWindow
+from .gui.add_category import AddCategoryWindow
+from .gui.delete_category import DeleteCategoryWindow
+from .gui.edit_category import EditCategoryWindow
 
 class MainApp(QMainWindow):
     def __init__(self, config):
@@ -49,16 +52,15 @@ class MainApp(QMainWindow):
         self.schedule_display.setReadOnly(True)
         top_layout.addWidget(self.schedule_display)
 
-        # Main layout for two columns
-        main_layout = QHBoxLayout()
+        # First horizontal layout for Tasks and Logs
+        first_row_layout = QHBoxLayout()
 
         # Left column for tasks
         left_layout = QVBoxLayout()
-        left_layout.setAlignment(Qt.AlignTop)  # Ensure alignment is to the top
+        left_layout.setAlignment(Qt.AlignTop)
         task_label = QLabel("Tasks")
         left_layout.addWidget(task_label)
 
-        # Buttons for task management
         self.add_task_button = QPushButton("Add a New Task", self)
         self.add_task_button.clicked.connect(self.add_task_window)
         left_layout.addWidget(self.add_task_button)
@@ -71,9 +73,9 @@ class MainApp(QMainWindow):
         self.adjust_button.clicked.connect(self.adjust_time_window)
         left_layout.addWidget(self.adjust_button)
 
-        # Right column for logs
+        # Second column for logs
         right_layout = QVBoxLayout()
-        right_layout.setAlignment(Qt.AlignTop)  # Ensure alignment is to the top
+        right_layout.setAlignment(Qt.AlignTop)
         log_label = QLabel("Logs")
         right_layout.addWidget(log_label)
 
@@ -85,9 +87,43 @@ class MainApp(QMainWindow):
         self.view_logs_button.clicked.connect(self.view_logs_window)
         right_layout.addWidget(self.view_logs_button)
 
-        # Add columns to the main layout
-        main_layout.addLayout(left_layout)
-        main_layout.addLayout(right_layout)
+        # Add the task and log layouts to the first row
+        first_row_layout.addLayout(left_layout)
+        first_row_layout.addLayout(right_layout)
+
+        # Second horizontal layout for Categories and Other
+        second_row_layout = QHBoxLayout()
+
+        # Third column for categories
+        categories_layout = QVBoxLayout()
+        categories_layout.setAlignment(Qt.AlignTop)
+        category_label = QLabel("Categories")
+        categories_layout.addWidget(category_label)
+
+        self.add_category_button = QPushButton("Add Category", self)
+        self.add_category_button.clicked.connect(self.add_category_window)
+        categories_layout.addWidget(self.add_category_button)
+
+        self.edit_category_button = QPushButton("Edit Category", self)
+        self.edit_category_button.clicked.connect(self.edit_category_window)
+        categories_layout.addWidget(self.edit_category_button)
+
+        self.delete_category_button = QPushButton("Delete Category", self)
+        self.delete_category_button.clicked.connect(self.delete_category_window)
+        categories_layout.addWidget(self.delete_category_button)
+
+        # Fourth column for other options
+        other_layout = QVBoxLayout()
+        other_layout.setAlignment(Qt.AlignTop)
+        other_label = QLabel("Other")
+        other_layout.addWidget(other_label)
+
+        self.settings_button = QPushButton("(TODO)STFU", self)
+        other_layout.addWidget(self.settings_button)
+
+        # Add the categories and other layouts to the second row
+        second_row_layout.addLayout(categories_layout)
+        second_row_layout.addLayout(other_layout)
 
         # Bottom layout for exit button
         bottom_layout = QHBoxLayout()
@@ -98,10 +134,10 @@ class MainApp(QMainWindow):
         # Final layout setup
         final_layout = QVBoxLayout()
         final_layout.addLayout(top_layout)
-        final_layout.addLayout(main_layout)
+        final_layout.addLayout(first_row_layout)
+        final_layout.addLayout(second_row_layout)
         final_layout.addLayout(bottom_layout)
 
-        # Set the final layout to the central widget
         central_widget.setLayout(final_layout)
 
         self.timer = QTimer(self)
@@ -145,7 +181,7 @@ class MainApp(QMainWindow):
 
         # Check if the active task has changed and play a chime if it has
         if new_current_task != self.current_active_task and new_current_task is not None:
-            chime.success()
+            # chime.success()
             self.current_active_task = new_current_task
 
     def adjust_time_window(self):
@@ -169,8 +205,23 @@ class MainApp(QMainWindow):
 
     def delete_task_window(self):
         delete_task_window = DeleteTaskWindow(self.config, self.styleSheet())
-        delete_task_window.task_deleted.connect(self.config.load_data)  # Connect the signal to update_schedule
+        delete_task_window.task_deleted.connect(self.config.load_data) # Refresh UI
         delete_task_window.exec_()
+
+    def add_category_window(self):
+        dialog = AddCategoryWindow(self.config, self.styleSheet())
+        dialog.category_added.connect(self.config.load_data)
+        dialog.exec_()
+
+    def edit_category_window(self):
+        dialog = EditCategoryWindow(self.config, self.styleSheet())
+        dialog.category_edited.connect(self.config.load_data)
+        dialog.exec_()
+
+    def delete_category_window(self):
+        dialog = DeleteCategoryWindow(self.config, self.styleSheet())
+        dialog.category_deleted.connect(self.config.load_data)
+        dialog.exec_()
 
 def run_gui(config):
     app = QApplication([])
