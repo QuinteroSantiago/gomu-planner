@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton,
         QTextEdit, QVBoxLayout, QWidget, QLabel)
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QTextEdit
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QTextEdit, QSpacerItem, QSizePolicy
 from datetime import datetime, date
 from .schedule import create_schedule
 import chime
@@ -26,9 +26,8 @@ class MainApp(QMainWindow):
         self.init_ui()
 
     def load_styles(self):
-        # Navigate to the root directory where styles.css is located
         repo_dir = os.path.dirname(os.path.abspath(__file__))
-        root_dir = os.path.dirname(repo_dir)  # Navigate one directory up if gui.py is not in the root
+        root_dir = os.path.dirname(repo_dir)
         style_sheet_path = os.path.join(root_dir, 'styles.css')
 
         try:
@@ -55,6 +54,7 @@ class MainApp(QMainWindow):
 
         # Left column for tasks
         left_layout = QVBoxLayout()
+        left_layout.setAlignment(Qt.AlignTop)  # Ensure alignment is to the top
         task_label = QLabel("Tasks")
         left_layout.addWidget(task_label)
 
@@ -73,6 +73,7 @@ class MainApp(QMainWindow):
 
         # Right column for logs
         right_layout = QVBoxLayout()
+        right_layout.setAlignment(Qt.AlignTop)  # Ensure alignment is to the top
         log_label = QLabel("Logs")
         right_layout.addWidget(log_label)
 

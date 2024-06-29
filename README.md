@@ -27,3 +27,8 @@ Open a terminal or command prompt, navigate to gomu-planner directory and run:
 ```bash
 python main.py
 ```
+
+
+### TODO
+- [ ] Add stfu button to take out chimes
+- [ ] 
