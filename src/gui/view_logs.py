@@ -31,7 +31,6 @@ class ViewLogsWindow(QDialog):
         categories = self.config.session.query(TaskCategory).all()
         for category in categories:
             colors[category.category_name] = category.color
-        print(f"colors: {colors}")
         return colors
 
     def load_logs(self):
