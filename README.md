@@ -30,5 +30,4 @@ python main.py
 
 
 ### TODO
-- [ ] Add stfu button to take out chimes
 - [ ] 

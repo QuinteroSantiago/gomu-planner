@@ -26,6 +26,7 @@ class MainApp(QMainWindow):
         self.load_styles()
         QApplication.setFont(QFont("Courier New", 12))
         self.current_active_task = None
+        self.chime_enabled = True
         self.init_ui()
 
     def load_styles(self):
@@ -118,8 +119,9 @@ class MainApp(QMainWindow):
         other_label = QLabel("Other")
         other_layout.addWidget(other_label)
 
-        self.settings_button = QPushButton("(TODO)STFU", self)
-        other_layout.addWidget(self.settings_button)
+        self.silencer_button = QPushButton("STFU", self)
+        self.silencer_button.clicked.connect(self.toggle_chimes)
+        other_layout.addWidget(self.silencer_button)
 
         # Add the categories and other layouts to the second row
         second_row_layout.addLayout(categories_layout)
@@ -149,6 +151,11 @@ class MainApp(QMainWindow):
         self.reset_logging_timer()
 
         self.update_schedule()
+
+    def toggle_chimes(self):
+        self.chime_enabled = not self.chime_enabled
+        btn_text = "Enable Sounds" if not self.chime_enabled else "STFU"
+        self.silencer_button.setText(btn_text)
 
     def reset_logging_timer(self):
         self.logging_timer.start(30 * 60 * 1000)
@@ -181,7 +188,8 @@ class MainApp(QMainWindow):
 
         # Check if the active task has changed and play a chime if it has
         if new_current_task != self.current_active_task and new_current_task is not None:
-            # chime.success()
+            if self.chime_enabled:
+                chime.success()
             self.current_active_task = new_current_task
 
     def adjust_time_window(self):
@@ -190,6 +198,8 @@ class MainApp(QMainWindow):
         self.update_schedule()
 
     def logging_window(self):
+        if self.chime_enabled:
+            chime.info()
         log_win = LoggingWindow(self.styleSheet())
         log_win.exec_()
         self.reset_logging_timer()

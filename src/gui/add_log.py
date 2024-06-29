@@ -10,7 +10,6 @@ class LoggingWindow(QDialog):
         self.init_ui()
 
     def init_ui(self):
-        chime.info()
         layout = QVBoxLayout()
         self.setWindowTitle("Log Activity")
 
