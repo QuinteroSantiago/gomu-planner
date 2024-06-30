@@ -21,7 +21,6 @@ cd gomu-planner
 ```bash
 pip install tkinter Pillow chime
 ```
-3. Customize your schedule. Delete the `.example` extension from the `tasks_data.json.example` file and load them with your preferences.
 # Running app
 Open a terminal or command prompt, navigate to gomu-planner directory and run:
 ```bash

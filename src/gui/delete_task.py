@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QComboBox, QLabel, QPushButton, QMessageBox)
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QComboBox, QLabel, QPushButton, QMessageBox
 from PyQt5.QtCore import pyqtSignal
-from ..db.models import DailyTask, VariableTask
+from ..db.models import Task
 
 class DeleteTaskWindow(QDialog):
     task_deleted = pyqtSignal()
@@ -13,7 +13,20 @@ class DeleteTaskWindow(QDialog):
         self.init_ui()
 
     def init_ui(self):
+        self.no_tasks = self.check_no_tasks()  # Initial check for tasks
         layout = QVBoxLayout()
+        self.setLayout(layout)
+        if self.no_tasks:
+            # Display the error message and set up a basic layout for the message
+            self.setWindowTitle("No Tasks to Delete")
+            task_label = QLabel("No Tasks to delete.")
+            task_label.setStyleSheet("color: black;")
+            close_button = QPushButton("Close")
+            close_button.clicked.connect(self.close)  # Connect the Close button to close the dialog
+            layout.addWidget(task_label)
+            layout.addWidget(close_button)
+            return
+
         self.setWindowTitle("Delete Task")
 
         # Task selection
@@ -28,52 +41,39 @@ class DeleteTaskWindow(QDialog):
         delete_button.clicked.connect(self.delete_task)
         layout.addWidget(delete_button)
 
-        self.setLayout(layout)
+    def check_no_tasks(self):
+        # Check if there are any tasks available for deletion
+        tasks = self.config.session.query(Task).all()
+        return len(tasks) == 0
 
     def update_task_combo(self):
         self.task_combo.clear()
+        tasks = self.config.session.query(Task).all()
 
-        # Fetch all daily tasks and variable tasks
-        daily_tasks = self.config.session.query(DailyTask).all()
-        variable_tasks = self.config.session.query(VariableTask).all()
-
-        for task in daily_tasks:
+        for task in tasks:
             category_name = task.category.category_name if task.category else "None"
-            self.task_combo.addItem(f"Daily[{category_name}]: {task.task_name}", userData=("daily", task.id))
-        for task in variable_tasks:
-            category_name = task.category.category_name if task.category else "None"
-            self.task_combo.addItem(f"Variable[{category_name}]: {task.task_name}", userData=("variable", task.id))
+            self.task_combo.addItem(f"Task [{category_name}]: {task.task_name}", userData=("variable", task.id))
 
     def delete_task(self):
-        selected_task = self.task_combo.currentData()
+        selected_task = self.task_combo.currentData()[1]
         if selected_task is None:
             msg_box = QMessageBox(QMessageBox.Warning, "Error", "No task selected.")
             msg_box.setStyleSheet("color: black;")
             msg_box.exec_()
             return
-
-        task_type, task_id = selected_task
-        if task_type == "daily":
-            task = self.config.session.query(DailyTask).filter_by(id=task_id).first()
-        elif task_type == "variable":
-            task = self.config.session.query(VariableTask).filter_by(id=task_id).first()
-        else:
-            msg_box = QMessageBox(QMessageBox.Critical, "Error", "Invalid task type.")
-            msg_box.setStyleSheet("color: black;")
-            msg_box.exec_()
-            return
-
-        if task:
-            self.config.session.delete(task)
-            self.config.session.commit()
-            msg_box = QMessageBox(QMessageBox.Information, "Success", "Task deleted successfully!")
-            msg_box.setStyleSheet("color: black;")
-            self.task_deleted.emit()
-            msg_box.exec_()
-        else:
-            msg_box = QMessageBox(QMessageBox.Critical, "Error", "Task not found.")
-            msg_box.setStyleSheet("color: black;")
-            msg_box.exec_()
-
-        self.update_task_combo()  # Refresh the task list
-        self.accept()
+        task_id = selected_task
+        if task_id:
+            task = self.config.session.query(Task).filter_by(id=task_id).first()
+            if task:
+                self.config.session.delete(task)
+                self.config.session.commit()
+                msg_box = QMessageBox(QMessageBox.Information, "Success", "Task deleted successfully!")
+                msg_box.setStyleSheet("color: black;")
+                self.task_deleted.emit()
+                msg_box.exec_()
+                self.update_task_combo()  # Refresh the task list
+                self.accept()
+            else:
+                msg_box = QMessageBox(QMessageBox.Critical, "Error", "Task not found.")
+                msg_box.setStyleSheet("color: black;")
+                msg_box.exec_()

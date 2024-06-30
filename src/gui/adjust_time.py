@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QPushButton, QVBoxLayout, QComboBox,
-    QLabel, QLineEdit, QMessageBox, QDialog)
+    QLabel, QTimeEdit, QMessageBox, QDialog)
 from datetime import datetime
 
 class AdjustTimeWindow(QDialog):
@@ -16,7 +16,7 @@ class AdjustTimeWindow(QDialog):
 
         # Task selection dropdown
         self.task_combo = QComboBox()
-        task_names = [task.task_name for task in self.config.variable_tasks]
+        task_names = [task.task_name for task in self.config.tasks]
         self.task_combo.addItems(task_names)
         task_label = QLabel("Select Task:")
         task_label.setStyleSheet("color: black;")
@@ -24,9 +24,9 @@ class AdjustTimeWindow(QDialog):
         layout.addWidget(self.task_combo)
 
         # Time input
-        self.time_input = QLineEdit()
-        self.time_input.setPlaceholderText("Enter new time (HHMM)")
-        time_label = QLabel("New Time:")
+        self.time_input = QTimeEdit()
+        self.time_input.setDisplayFormat("HH:mm")
+        time_label = QLabel("New Start Time:")
         time_label.setStyleSheet("color: black;")
         layout.addWidget(time_label)
         layout.addWidget(self.time_input)
@@ -40,12 +40,11 @@ class AdjustTimeWindow(QDialog):
 
     def save_new_time(self):
         task_name = self.task_combo.currentText()
-        new_time = self.time_input.text()
+        new_time = self.time_input.text().replace(':', '')
         try:
             # Ensure input is exactly 4 digits and digits only
             if len(new_time) != 4 or not new_time.isdigit():
                 raise ValueError("Please enter time in HHMM format, where HH is hour and MM is minute.")
-            datetime.strptime(new_time, '%H%M')
             self.config.update_preferences(task_name, new_time)
             self.accept()
         except ValueError as e:

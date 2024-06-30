@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QComboBox, QLabel, QLineEdit, QPushButton,
         QRadioButton, QHBoxLayout, QTimeEdit, QMessageBox)
 from PyQt5.QtGui import QIntValidator
-from datetime import time
-from ..db.models import DailyTask, TaskCategory, VariableTask
+from datetime import datetime, time
+from ..db.models import TaskCategory, Task
 from PyQt5.QtCore import pyqtSignal
 
 class AddTaskWindow(QDialog):
@@ -49,18 +49,6 @@ class AddTaskWindow(QDialog):
         layout.addWidget(task_name_label)
         layout.addWidget(self.task_name_input)
 
-        # Task type selection
-        self.daily_task_radio = QRadioButton("Daily Task")
-        self.variable_task_radio = QRadioButton("Variable Task")
-        task_type_label = QLabel("Task Type:")
-        task_type_label.setStyleSheet("color: black;")
-        layout.addWidget(task_type_label)
-        radio_layout = QHBoxLayout()
-        radio_layout.addWidget(self.daily_task_radio)
-        radio_layout.addWidget(self.variable_task_radio)
-        layout.addLayout(radio_layout)
-        self.daily_task_radio.setChecked(True)  # Default selection
-
         # Start time selection
         self.start_time_edit = QTimeEdit()
         self.start_time_edit.setDisplayFormat('HH:mm')
@@ -86,30 +74,18 @@ class AddTaskWindow(QDialog):
             return
         duration = int(self.duration_input.text())
         task_name = self.task_name_input.text()
-        start_time = self.start_time_edit.time().toString('HH:mm:ss')
-        start_time = time.fromisoformat(start_time)
+        start_time = self.start_time_edit.text().replace(':', '')
         category_id = category.id
-        if self.daily_task_radio.isChecked():
-            try:
-                DailyTask.create(self.config.session, start_time, duration, task_name, category_id)
-                msg_box = QMessageBox(QMessageBox.Information, "Success", "Daily task added successfully!")
-                msg_box.setStyleSheet("color: black;")
-                self.task_added.emit()
-                msg_box.exec_()
-            except Exception as e:
-                msg_box = QMessageBox(QMessageBox.Critical, "Error", f"Failed to add daily task: {str(e)}")
-                msg_box.setStyleSheet("color: black;")
-                msg_box.exec_()
-        else:
-            try:
-                VariableTask.create(self.config.session, duration, task_name, category_id)
-                msg_box = QMessageBox(QMessageBox.Information, "Success", "Variable task added successfully!")
-                msg_box.setStyleSheet("color: black;")
-                self.task_added.emit()
-                msg_box.exec_()
-            except Exception as e:
-                msg_box = QMessageBox(QMessageBox.Critical, "Error", f"Failed to add variable task: {str(e)}")
-                msg_box.setStyleSheet("color: black;")
-                msg_box.exec_()
+        try:
+            Task.create(self.config.session, duration, task_name, category_id)
+            self.config.update_preferences(task_name, start_time)
+            msg_box = QMessageBox(QMessageBox.Information, "Success", "Task added successfully!")
+            msg_box.setStyleSheet("color: black;")
+            self.task_added.emit()
+            msg_box.exec_()
+        except Exception as e:
+            msg_box = QMessageBox(QMessageBox.Critical, "Error", f"Failed to add task: {str(e)}")
+            msg_box.setStyleSheet("color: black;")
+            msg_box.exec_()
 
         self.accept()  # Close the dialog

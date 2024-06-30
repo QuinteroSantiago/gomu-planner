@@ -1,7 +1,6 @@
 from sqlalchemy.orm import sessionmaker, joinedload
 from sqlalchemy import create_engine
-from .db.models import DailyTask, VariableTask, Preference, TaskCategory
-from datetime import datetime
+from .db.models import Task, Preference, TaskCategory
 from dotenv import load_dotenv
 import os
 
@@ -26,13 +25,11 @@ class Config:
 
     def load_data(self):
         with self.get_session() as session:
-            self.daily_tasks = session.query(DailyTask).options(joinedload(DailyTask.category)).all()
-            self.variable_tasks = session.query(VariableTask).options(joinedload(VariableTask.category)).all()
+            self.tasks = session.query(Task).options(joinedload(Task.category)).all()
             self.preferences = {pref.task_name: pref.preferred_time for pref in session.query(Preference).all()}
             self.tasks_data = {
                 'preferred_times': self.preferences,
-                'daily_tasks': self.daily_tasks,
-                'variable_tasks': self.variable_tasks
+                'tasks': self.tasks,
             }
 
     def save_data(self):

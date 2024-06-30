@@ -171,8 +171,7 @@ class MainApp(QMainWindow):
         self.schedule_display.append(f"<div style='text-align:left;'>{current_time}</div>")
 
         day_of_week = datetime.today().weekday()
-        schedule = create_schedule(self.config.daily_tasks, self.config.variable_tasks,
-                day_of_week, self.config.preferences)
+        schedule = create_schedule(self.config.tasks, day_of_week, self.config.preferences)
 
         new_current_task = None
         for start_dt, end_dt, task_name, category_name in schedule:
