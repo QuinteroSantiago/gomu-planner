@@ -14,6 +14,18 @@ class EditCategoryWindow(QDialog):
 
     def init_ui(self):
         layout = QVBoxLayout()
+        self.no_categories = self.check_no_categories()  # Initial check for tasks
+        if self.no_categories:
+            self.setWindowTitle("No Categories to Edit")
+            task_label = QLabel("No categories to edit.")
+            task_label.setStyleSheet("color: black;")
+            close_button = QPushButton("Close")
+            close_button.clicked.connect(self.close)  # Connect the Close button to close the dialog
+            layout.addWidget(task_label)
+            layout.addWidget(close_button)
+            self.setLayout(layout)
+            return
+
         self.setWindowTitle("Edit Category")
 
         # Category selection
@@ -46,6 +58,10 @@ class EditCategoryWindow(QDialog):
         layout.addWidget(save_button)
 
         self.setLayout(layout)
+
+    def check_no_categories(self):
+        tasks = self.config.session.query(TaskCategory).all()
+        return len(tasks) == 0
 
     def pick_color(self):
         color = QColorDialog.getColor()

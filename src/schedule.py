@@ -1,11 +1,16 @@
 from datetime import datetime, timedelta, date
+from .db.models import Frequency
 
 def create_schedule(tasks, day_of_week, preferences):
     today_date = date.today()
     schedule = []
-    # print(f'preferences: {preferences}')
-
     for task in tasks:
+        if task.frequency == Frequency.WEEKLY and task.day_of_week != day_of_week:
+            continue
+        if task.frequency == Frequency.MONTHLY and task.day_of_month != today_date.day:
+            continue
+        if task.frequency == Frequency.YEARLY and task.specific_date is not None and (task.specific_date.day != today_date.day or task.specific_date.month != today_date.month):
+            continue
         start_time = preferences.get(task.task_name)
         if start_time:
             start_dt = datetime.combine(today_date, start_time)

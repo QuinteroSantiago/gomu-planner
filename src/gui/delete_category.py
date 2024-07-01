@@ -13,7 +13,19 @@ class DeleteCategoryWindow(QDialog):
         self.init_ui()
 
     def init_ui(self):
+        self.no_categories = self.check_no_categories()  # Initial check for tasks
         layout = QVBoxLayout()
+        if self.no_categories:
+            # Display the error message and set up a basic layout for the message
+            self.setWindowTitle("No Categories to delete")
+            task_label = QLabel("No categories to delete.")
+            task_label.setStyleSheet("color: black;")
+            close_button = QPushButton("Close")
+            close_button.clicked.connect(self.close)  # Connect the Close button to close the dialog
+            layout.addWidget(task_label)
+            layout.addWidget(close_button)
+            self.setLayout(layout)
+            return
         self.setWindowTitle("Delete Category")
 
         # Category selection
@@ -32,6 +44,10 @@ class DeleteCategoryWindow(QDialog):
         layout.addWidget(delete_button)
 
         self.setLayout(layout)
+
+    def check_no_categories(self):
+        tasks = self.config.session.query(TaskCategory).all()
+        return len(tasks) == 0
 
     def delete_category(self):
         category = self.category_combo.currentData()

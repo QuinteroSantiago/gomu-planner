@@ -15,16 +15,16 @@ class DeleteTaskWindow(QDialog):
     def init_ui(self):
         self.no_tasks = self.check_no_tasks()  # Initial check for tasks
         layout = QVBoxLayout()
-        self.setLayout(layout)
         if self.no_tasks:
             # Display the error message and set up a basic layout for the message
             self.setWindowTitle("No Tasks to Delete")
-            task_label = QLabel("No Tasks to delete.")
+            task_label = QLabel("No tasks to delete.")
             task_label.setStyleSheet("color: black;")
             close_button = QPushButton("Close")
             close_button.clicked.connect(self.close)  # Connect the Close button to close the dialog
             layout.addWidget(task_label)
             layout.addWidget(close_button)
+            self.setLayout(layout)
             return
 
         self.setWindowTitle("Delete Task")
@@ -40,6 +40,7 @@ class DeleteTaskWindow(QDialog):
         delete_button = QPushButton("Delete Task")
         delete_button.clicked.connect(self.delete_task)
         layout.addWidget(delete_button)
+        self.setLayout(layout)
 
     def check_no_tasks(self):
         # Check if there are any tasks available for deletion
