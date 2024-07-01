@@ -15,6 +15,7 @@ from .gui.delete_task import DeleteTaskWindow
 from .gui.add_category import AddCategoryWindow
 from .gui.delete_category import DeleteCategoryWindow
 from .gui.edit_category import EditCategoryWindow
+from .db.models import TaskCategory
 
 class MainApp(QMainWindow):
     def __init__(self, config):
@@ -25,6 +26,7 @@ class MainApp(QMainWindow):
         self.setGeometry(0, 0, 800, 1600)
         self.load_styles()
         QApplication.setFont(QFont("Courier New", 12))
+        self.category_colors = self.fetch_category_colors()
         self.current_active_task = None
         self.chime_enabled = True
         self.init_ui()
@@ -176,14 +178,19 @@ class MainApp(QMainWindow):
         new_current_task = None
         for start_dt, end_dt, task_name, category_name in schedule:
             start_time_str = start_dt.strftime('%H:%M')
+            print(f'{start_time_str}: ')
             if start_dt <= now < end_dt:
                 color = "green"  # Current task
+                category_color = "green"
                 new_current_task = task_name
             elif end_dt < now:
                 color = "red"    # Past task
+                category_color = "red"
             else:
                 color = "white"   # Future task
-            self.schedule_display.append(f"<div style='color:{color};'>{start_time_str} [{category_name}] - {task_name}</div>")
+                # Get the category color for future tasks
+                category_color = self.category_colors.get(category_name, 'magenta')
+            self.schedule_display.append(f"<div style='color:{color};'>{start_time_str} <span style='color:{category_color};'>[{category_name}]</span> - {task_name}</div>")
 
         # Check if the active task has changed and play a chime if it has
         if new_current_task != self.current_active_task and new_current_task is not None:
@@ -231,6 +238,13 @@ class MainApp(QMainWindow):
         dialog = DeleteCategoryWindow(self.config, self.styleSheet())
         dialog.category_deleted.connect(self.config.load_data)
         dialog.exec_()
+
+    def fetch_category_colors(self):
+        colors = {}
+        categories = self.config.session.query(TaskCategory).all()
+        for category in categories:
+            colors[category.category_name] = category.color
+        return colors
 
 def run_gui(config):
     app = QApplication([])

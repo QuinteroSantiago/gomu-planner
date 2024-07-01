@@ -53,7 +53,7 @@ class DeleteTaskWindow(QDialog):
 
         for task in tasks:
             category_name = task.category.category_name if task.category else "None"
-            self.task_combo.addItem(f"Task [{category_name}]: {task.task_name}", userData=("variable", task.id))
+            self.task_combo.addItem(f"{category_name} [{task.frequency.value}]: {task.task_name}", userData=("variable", task.id))
 
     def delete_task(self):
         selected_task = self.task_combo.currentData()[1]

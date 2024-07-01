@@ -41,9 +41,9 @@ class Task(Base):
     @classmethod
     def create(cls, session, duration, task_name, category_id, frequency, day_of_week=None, day_of_month=None, specific_date=None):
         new_task = cls(
-            duration=duration, 
-            task_name=task_name, 
-            category_id=category_id, 
+            duration=duration,
+            task_name=task_name,
+            category_id=category_id,
             frequency=frequency,
             day_of_week=day_of_week,
             day_of_month=day_of_month,
