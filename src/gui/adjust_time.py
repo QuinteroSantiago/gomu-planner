@@ -5,7 +5,7 @@ from PyQt5.QtCore import QTime
 import sys
 from ..db.models import Task
 
-class AdjustTimeWindow(QDialog):
+class EditTaskWindow(QDialog):
     def __init__(self, config, style_sheet=None):
         super().__init__()
         self.config = config

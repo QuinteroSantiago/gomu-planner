@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import (QPushButton, QVBoxLayout, QComboBox, QLabel, QLineEdit, QDialog)
 from datetime import datetime
-import chime
+from ..db.models import TaskCategory
 
 class LoggingWindow(QDialog):
-    def __init__(self, style_sheet=None):
+    def __init__(self, config, style_sheet=None):
         super().__init__()
+        self.config = config
         if style_sheet:
             self.setStyleSheet(style_sheet)
         self.init_ui()
@@ -15,8 +16,7 @@ class LoggingWindow(QDialog):
 
         # Activity dropdown
         self.activity_combo = QComboBox()
-        activities = ['READ', 'WRKT', 'CORE', 'GOMU', 'PRCR', 'MEAL']
-        self.activity_combo.addItems(activities)
+        self.populate_activities()
         activity_label = QLabel("Select Activity:")
         activity_label.setStyleSheet("color: black;")
         layout.addWidget(activity_label)
@@ -36,6 +36,11 @@ class LoggingWindow(QDialog):
         layout.addWidget(save_button)
 
         self.setLayout(layout)
+
+    def populate_activities(self):
+        activities = self.config.session.query(TaskCategory).all()
+        for activity in activities:
+            self.activity_combo.addItem(activity.category_name)
 
     def save_log(self):
         activity = self.activity_combo.currentText()

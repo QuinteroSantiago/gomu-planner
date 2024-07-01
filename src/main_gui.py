@@ -7,7 +7,7 @@ from datetime import datetime, date
 from .schedule import create_schedule
 import chime
 import os
-from .gui.adjust_time import AdjustTimeWindow
+from .gui.adjust_time import EditTaskWindow
 from .gui.add_log import LoggingWindow
 from .gui.view_logs import ViewLogsWindow
 from .gui.add_new_task import AddTaskWindow
@@ -178,7 +178,6 @@ class MainApp(QMainWindow):
         new_current_task = None
         for start_dt, end_dt, task_name, category_name in schedule:
             start_time_str = start_dt.strftime('%H:%M')
-            print(f'{start_time_str}: ')
             if start_dt <= now < end_dt:
                 color = "green"  # Current task
                 category_color = "green"
@@ -199,14 +198,14 @@ class MainApp(QMainWindow):
             self.current_active_task = new_current_task
 
     def adjust_time_window(self):
-        dialog = AdjustTimeWindow(self.config, self.styleSheet())
+        dialog = EditTaskWindow(self.config, self.styleSheet())
         dialog.exec_()
         self.update_schedule()
 
     def logging_window(self):
         if self.chime_enabled:
             chime.info()
-        log_win = LoggingWindow(self.styleSheet())
+        log_win = LoggingWindow(self.config, self.styleSheet())
         log_win.exec_()
         self.reset_logging_timer()
 
