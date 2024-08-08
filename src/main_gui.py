@@ -15,6 +15,7 @@ from .gui.delete_task import DeleteTaskWindow
 from .gui.add_category import AddCategoryWindow
 from .gui.delete_category import DeleteCategoryWindow
 from .gui.edit_category import EditCategoryWindow
+from .gui.view_tasks_by_category import ViewTasksByCategoryWindow
 from .db.models import TaskCategory
 
 class MainApp(QMainWindow):
@@ -124,6 +125,10 @@ class MainApp(QMainWindow):
         self.silencer_button = QPushButton("STFU", self)
         self.silencer_button.clicked.connect(self.toggle_chimes)
         other_layout.addWidget(self.silencer_button)
+
+        self.view_tasks_button = QPushButton("View Tasks By Category", self)
+        self.view_tasks_button.clicked.connect(self.view_tasks_by_category_window)
+        other_layout.addWidget(self.view_tasks_button)
 
         # Add the categories and other layouts to the second row
         second_row_layout.addLayout(categories_layout)
@@ -236,6 +241,10 @@ class MainApp(QMainWindow):
     def delete_category_window(self):
         dialog = DeleteCategoryWindow(self.config, self.styleSheet())
         dialog.category_deleted.connect(self.config.load_data)
+        dialog.exec_()
+
+    def view_tasks_by_category_window(self):
+        dialog = ViewTasksByCategoryWindow(self.config, self.styleSheet())
         dialog.exec_()
 
     def fetch_category_colors(self):
