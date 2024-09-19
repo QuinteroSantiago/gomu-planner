@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QComboBox, QLabel, QLineEdit, QPushButton,
-                             QRadioButton, QHBoxLayout, QTimeEdit, QMessageBox, QDateEdit, QCalendarWidget)
+    QRadioButton, QHBoxLayout, QTimeEdit, QMessageBox, QDateEdit, QCalendarWidget, QCheckBox)
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import pyqtSignal, QDate
 from datetime import datetime, time
@@ -74,10 +74,15 @@ class AddTaskWindow(QDialog):
         # Based on frequency, add specific input controls
         frequency = self.frequency_combo.currentText()
         if frequency == "Weekly":
-            self.day_of_week_combo = QComboBox()
-            self.day_of_week_combo.addItems(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
-            self.dynamic_inputs_layout.addWidget(QLabel("Day of the Week:", styleSheet="color: black;"))
-            self.dynamic_inputs_layout.addWidget(self.day_of_week_combo)
+            self.day_checkboxes = []
+            days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+            self.dynamic_inputs_layout.addWidget(QLabel("Select Days of the Week:", styleSheet="color: black;"))
+            days_layout = QHBoxLayout()
+            for day in days:
+                checkbox = QCheckBox(day)
+                self.day_checkboxes.append(checkbox)
+                days_layout.addWidget(checkbox)
+            self.dynamic_inputs_layout.addLayout(days_layout)
         elif frequency == "Monthly":
             self.day_of_month_input = QLineEdit()
             self.day_of_month_input.setPlaceholderText("Enter day of the month (1-31)")
@@ -101,18 +106,54 @@ class AddTaskWindow(QDialog):
             msg_box.setStyleSheet("color: black;")
             msg_box.exec_()
             return
-        duration = int(self.duration_input.text())
+        duration_text = self.duration_input.text()
+        if not duration_text:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Critical)
+            msg_box.setText("Please enter a duration.")
+            msg_box.setWindowTitle("Error")
+            msg_box.setStyleSheet("color: black;")
+            msg_box.exec_()
+            return
+        duration = int(duration_text)
         task_name = self.task_name_input.text()
+        if not task_name:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Critical)
+            msg_box.setText("Please enter a task name.")
+            msg_box.setWindowTitle("Error")
+            msg_box.setStyleSheet("color: black;")
+            msg_box.exec_()
+            return
         start_time = self.start_time_edit.text().replace(':', '')
         category_id = category.id
         frequency = self.frequency_combo.currentText()
 
         try:
             if frequency == "Weekly":
-                day_of_week = self.day_of_week_combo.currentIndex()
-                Task.create(self.config.session, duration, task_name, category_id, frequency, day_of_week=day_of_week)
+                selected_days = [i for i, checkbox in enumerate(self.day_checkboxes) if checkbox.isChecked()]
+                if not selected_days:
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Critical)
+                    msg_box.setText("Please select at least one day of the week.")
+                    msg_box.setWindowTitle("Error")
+                    msg_box.setStyleSheet("color: black;")
+                    msg_box.exec_()
+                    return
+
+                for day_of_week in selected_days:
+                    Task.create(self.config.session, duration, task_name, category_id, frequency, day_of_week=day_of_week)
             elif frequency == "Monthly":
-                day_of_month  = int(self.day_of_month_input.text())
+                day_of_month_text = self.day_of_month_input.text()
+                if not day_of_month_text:
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Critical)
+                    msg_box.setText("Please enter the day of the month.")
+                    msg_box.setWindowTitle("Error")
+                    msg_box.setStyleSheet("color: black;")
+                    msg_box.exec_()
+                    return
+                day_of_month = int(day_of_month_text)
                 Task.create(self.config.session, duration, task_name, category_id, frequency, day_of_month=day_of_month)
             elif frequency == "Yearly":
                 specific_date = self.date_of_year_edit.date().toPyDate()
@@ -122,7 +163,10 @@ class AddTaskWindow(QDialog):
             self.config.update_preferences(task_name, start_time)
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText("Task added successfully!")
+            if frequency == "Weekly" and len(selected_days) > 1:
+                msg_box.setText("Tasks added successfully!")
+            else:
+                msg_box.setText("Task added successfully!")
             msg_box.setWindowTitle("Success")
             msg_box.exec_()
             self.task_added.emit()
@@ -133,5 +177,6 @@ class AddTaskWindow(QDialog):
             msg_box.setWindowTitle("Error")
             msg_box.setStyleSheet("color: black;")
             msg_box.exec_()
+            return  # Make sure to return here to avoid closing the dialog on failure
 
         self.accept()  # Close the dialog

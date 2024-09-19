@@ -181,11 +181,11 @@ class MainApp(QMainWindow):
         schedule = create_schedule(self.config.tasks, day_of_week, self.config.preferences)
 
         new_current_task = None
-        for start_dt, end_dt, task_name, category_name in schedule:
+        for start_dt, end_dt, task_name, category_name, task_duration in schedule:
             start_time_str = start_dt.strftime('%H:%M')
             if start_dt <= now < end_dt:
-                color = "green"  # Current task
-                category_color = "green"
+                color = "lightgreen"  # Current task
+                category_color = "lightgreen"
                 new_current_task = task_name
             elif end_dt < now:
                 color = "red"    # Past task
@@ -194,7 +194,23 @@ class MainApp(QMainWindow):
                 color = "white"   # Future task
                 # Get the category color for future tasks
                 category_color = self.category_colors.get(category_name, 'magenta')
-            self.schedule_display.append(f"<div style='color:{color};'>{start_time_str} <span style='color:{category_color};'>[{category_name}]</span> - {task_name}</div>")
+            # Convert task_duration to string for length checking
+            task_duration_str = str(task_duration)
+
+            # Determine the number of non-breaking spaces based on the length of task_duration
+            if len(task_duration_str) == 1:
+                task_duration_str = f"&nbsp;&nbsp;&nbsp;{task_duration_str}"  # Three non-breaking spaces
+            elif len(task_duration_str) == 2:
+                task_duration_str = f"&nbsp;&nbsp;{task_duration_str}"   # Two non-breaking spaces
+            elif len(task_duration_str) == 3:
+                task_duration_str = f"&nbsp;{task_duration_str}"    # One non-breaking space
+
+            # Insert the formatted task_duration into the display
+            self.schedule_display.append(
+                f"<div style='color:{color};'>{start_time_str} "
+                f"<span style='color:{category_color};'>[{category_name}]</span>"
+                f"{task_duration_str}: {task_name}</div>"
+            )
 
         # Check if the active task has changed and play a chime if it has
         if new_current_task != self.current_active_task and new_current_task is not None:
