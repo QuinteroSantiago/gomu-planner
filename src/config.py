@@ -11,6 +11,7 @@ class Config:
         self.Session = sessionmaker(bind=self.engine)
         self.session = self.get_session()
         self.load_data()
+        self.log_file_path = os.path.join(os.getcwd(), "activity_log.txt")
 
     @property
     def database_url(self):

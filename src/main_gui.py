@@ -30,6 +30,9 @@ class MainApp(QMainWindow):
         self.category_colors = self.fetch_category_colors()
         self.current_active_task = None
         self.chime_enabled = True
+
+        self.write_log_entry("Gomu", "OPEN APP")
+
         self.init_ui()
 
     def load_styles(self):
@@ -269,6 +272,16 @@ class MainApp(QMainWindow):
         for category in categories:
             colors[category.category_name] = category.color
         return colors
+
+    def write_log_entry(self, activity, description):
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_message = f"{timestamp} {activity} - {description}\n"
+        with open(self.config.log_file_path, "a") as file:
+            file.write(log_message)
+
+    def closeEvent(self, event):
+        self.write_log_entry("Gomu", "CLOSE APP")
+        super().closeEvent(event)
 
 def run_gui(config):
     app = QApplication([])
