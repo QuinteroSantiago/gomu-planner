@@ -31,7 +31,7 @@ class MainApp(QMainWindow):
         self.current_active_task = None
         self.chime_enabled = True
 
-        self.write_log_entry("Gomu", "OPEN APP")
+        self.write_log_entry("GOMU", "OPEN APP")
 
         self.init_ui()
 
@@ -280,7 +280,7 @@ class MainApp(QMainWindow):
             file.write(log_message)
 
     def closeEvent(self, event):
-        self.write_log_entry("Gomu", "CLOSE APP")
+        self.write_log_entry("GOMU", "CLOSE APP")
         super().closeEvent(event)
 
 def run_gui(config):
